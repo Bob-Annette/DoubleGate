@@ -2,7 +2,7 @@
 
 Implementation of **DoubleGate: Dual-Gating Mixture-of-LoRA-Experts for Parameter-Efficient Medical Multi-Task Learning**, accepted by *Expert Systems with Applications*.
 
-This repository contains the paper's full dual-gating method, single-GPU training, and inference for the **original ChatGLM-6B**. The Python package is named `doublegate`. It does not include baselines, ablations, experiment queues, datasets, or model weights.
+This repository contains the paper's full dual-gating method, single-GPU training, inference, and eight-task PromptCBLUE data for the **original ChatGLM-6B**. The Python package is named `doublegate`. It does not include baselines, ablations, experiment queues, or model weights.
 
 ## 1. Install
 
@@ -32,7 +32,9 @@ hf download zai-org/chatglm-6b --revision bf0f5cfb575eebebf9b655c5861177acfee03f
 
 The scripts load local files only. `--trust-remote-code` explicitly permits execution of the custom Python files in the model directory; review those files first. ChatGLM2/3, GLM-4, and quantized checkpoints are not supported by these entry points.
 
-Use JSONL (one object per line) or a JSON array with the following fields:
+The paper's data are included in `data/`: **25,370 training records** in `train.jsonl` and **5,360 labeled evaluation records** in `test.jsonl`. Both files cover exactly the eight tasks evaluated in the paper. See [data/README.md](data/README.md) for per-task counts, source attribution, usage terms, and SHA-256 checksums. The training data are byte-identical to the archived file; the evaluation data retain the original records and order for the eight paper tasks.
+
+The loader also accepts your own JSONL (one object per line) or JSON array with the following fields:
 
 ```json
 {"input":"Your task instruction and input text", "target":"Expected answer", "task_dataset":"CHIP-CTC"}
@@ -41,11 +43,11 @@ Use JSONL (one object per line) or a JSON array with the following fields:
 - Training requires all three fields; inference requires `input` and `task_dataset`.
 - `configs/task_map.json` contains the paper's 16 task IDs. Keep IDs consistent between training and inference. The adapter saves the mapping automatically.
 - For your own tasks, provide `--task-map` and set `num_tasks` in a copy of `configs/doublegate.json`. IDs must be unique integers from 1 to `num_tasks`; zero is reserved.
-- Obtain benchmark data from its original provider and follow its license. No patient records or benchmark samples are redistributed here. The few examples in `examples/` are synthetic and only test the command-line workflow.
+- The included data originate from the public [MOELoRA data release](https://github.com/liuqidong07/MOELoRA-peft/tree/master/data) and [PromptCBLUE](https://github.com/michael-wzhu/PromptCBLUE). Follow the original data terms: PromptCBLUE resources are for academic research, with commercial use prohibited. The code's MIT license does not relicense these datasets.
 
 ## 3. Train
 
-Place training data in `data/train.jsonl`, then run:
+With the backbone downloaded, train directly on the included data:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train.py --trust-remote-code
@@ -61,24 +63,18 @@ CUDA_VISIBLE_DEVICES=0 python train.py --batch-size 1 --gradient-accumulation 64
 
 The output directory must not already exist. It contains `train_log.jsonl`, portable `training_config.json`, and `adapter/`. Only adapter parameters are saved, not the backbone. This minimal trainer saves the final adapter; it does not resume interrupted training or select checkpoints on a validation set. It preserves the paper's architecture and main training settings, but is not a bit-for-bit replay of historical experimental runs.
 
-To check installation with the synthetic examples (not a performance experiment):
+For a short installation check on the included training data:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python train.py --train-file examples/train.jsonl --output outputs/smoke --steps 2 --batch-size 1 --gradient-accumulation 2 --source-length 128 --target-length 16 --log-every 1 --trust-remote-code
+CUDA_VISIBLE_DEVICES=0 python train.py --output outputs/smoke --steps 2 --batch-size 1 --gradient-accumulation 2 --source-length 128 --target-length 16 --log-every 1 --trust-remote-code
 ```
 
 ## 4. Infer
 
-Put inputs in `data/test.jsonl` and use the trained adapter:
+Use the trained adapter on the included evaluation data:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python infer.py --trust-remote-code
-```
-
-Or use the adapter from the installation check:
-
-```bash
-CUDA_VISIBLE_DEVICES=0 python infer.py --adapter outputs/smoke/adapter --input-file examples/infer.jsonl --output outputs/smoke_predictions.jsonl --max-new-tokens 8 --greedy --trust-remote-code
 ```
 
 Each output JSONL object preserves the input fields and adds `prediction`. Existing output files are never overwritten. Default decoding uses top-p sampling (`top_p=0.7`, `temperature=0.95`); `--greedy` disables sampling. Inference runs one input at a time, with one beam and one returned sequence.
@@ -111,4 +107,4 @@ They check the dense dual-gating equation and gradients, zero-initialized adapte
 
 ## License and intended use
 
-Code is provided under the [MIT license](LICENSE). Backbone weights, model code, and datasets retain their respective licenses. This is research software, not a clinically validated system or a source of medical advice. A two-step installation check does not produce a useful medical model; train on appropriate, authorized data before evaluating downstream performance.
+Code is provided under the [MIT license](LICENSE). Backbone weights, model code, and datasets retain their respective licenses; the included data terms and attribution are documented in [data/README.md](data/README.md). This is research software, not a clinically validated system or a source of medical advice. A two-step installation check does not produce a useful medical model; use a fully trained adapter for downstream evaluation.

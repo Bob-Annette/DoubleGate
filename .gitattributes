@@ -1,0 +1,2 @@
+# Preserve dataset bytes and checksums on Windows and Linux.
+data/*.jsonl -text

@@ -1,6 +1,10 @@
-# Models, real data, predictions and local experiments must never be published.
+# Keep the paper's released data; ignore other local datasets and artifacts.
 models/
-data/
+data/*
+!data/train.jsonl
+!data/test.jsonl
+!data/README.md
+!data/LICENSE-MOELoRA
 outputs/
 checkpoints/
 results/
