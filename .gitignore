@@ -1,0 +1,25 @@
+# Models, real data, predictions and local experiments must never be published.
+models/
+data/
+outputs/
+checkpoints/
+results/
+logs/
+.cache/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pt
+*.bin
+*.safetensors
+*.arrow
+*.lock
+*.log
+*.tmp
+.env
+.env.*
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+{
+  "rank": 16,
+  "alpha": 32.0,
+  "dropout": 0.1,
+  "num_experts": 8,
+  "num_tasks": 16,
+  "task_embedding_dim": 64,
+  "num_heads": 4,
+  "target_modules": ["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"]
+}

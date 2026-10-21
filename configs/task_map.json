@@ -1,0 +1,18 @@
+{
+  "CHIP-CDEE": 1,
+  "CMeEE-V2": 2,
+  "CHIP-CTC": 3,
+  "IMCS-V2-DAC": 4,
+  "CHIP-STS": 5,
+  "IMCS-V2-MRG": 6,
+  "MedDG": 7,
+  "CHIP-CDN": 8,
+  "IMCS-V2-NER": 9,
+  "CHIP-MDCFNPC": 10,
+  "KUAKE-QTR": 11,
+  "KUAKE-QIC": 12,
+  "CMeIE": 13,
+  "IMCS-V2-SR": 14,
+  "KUAKE-QQR": 15,
+  "KUAKE-IR": 16
+}

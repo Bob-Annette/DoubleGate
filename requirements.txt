@@ -1,0 +1,7 @@
+# Python 3.10; install a CUDA-enabled PyTorch build separately (see README).
+torch==2.6.0
+transformers==4.27.1
+numpy==1.26.4
+sentencepiece==0.2.2
+huggingface-hub==0.36.0
+tokenizers==0.13.3
